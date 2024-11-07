@@ -1,0 +1,3 @@
+﻿  siaod_5.2.cpp
+C:\Users\ivank\source\repos\siaod_5.2\siaod_5.2.cpp(119,9): warning C4101: size_vec: неиспользованная локальная переменная
+  siaod_5.2.vcxproj -> C:\Users\ivank\source\repos\siaod_5.2\x64\Debug\siaod_5.2.exe

@@ -1,0 +1,20 @@
++ st.Baker,1A
++ st.High,2A
++		J°#ö st.Elm,3A
++ st.Main,4A
++ st.Maple,5A
++		J°#ö st.Oak,6A
++	J°#ö st.Pine,7A
++J°#ö st.Cedar,8A
++ st.Ash,9A
++		J°#ö st.Birch,10A
++ st.Walnut,11A
++ st.Chestnut,12A
++J°#ö st.Spruce,13A
++ st.Willow,14A
++ st.Lake,15A
++J°#ö st.River,16A
++ st.Hill,17A
++	J°#ö st.Park,18A
++ st.King,19A
++ st.Queen,20A
