@@ -1,0 +1,46 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <time.h>
+using namespace std;
+int main()
+{
+	setlocale(0, "");
+	const int MAX = 10000000;
+	const int ARRAY_SIZE = MAX / 8 + 1;
+	vector <unsigned char> array(ARRAY_SIZE,0);
+	vector <int> sorted;
+	ifstream file("C:/Users/ivank/Desktop/numbers.txt");
+	int number;
+	double sortTime;
+	time_t startt, endd;
+	time(&startt);
+	while (file >> number)
+	{
+		array[number / 8] |= (1 << number % 8);
+	}
+	time(&endd);
+	double seconds = (double)(endd - startt) / CLOCKS_PER_SEC;
+	cout << "Время считывания файла: " << seconds  << "s.";
+	file.close();
+	clock_t start = clock();
+	for (int i = 0; i < array.size(); i++)	//перебор по байтам
+	{
+		for (int j = 0; j < 8; j++)	//перебор по битам
+		{
+			if (array[i] & (1 << j))
+			{
+				sorted.push_back(i * 8 + j	);	//в зависимости от номера байта, будет выводиться число
+			}
+		}
+	}
+	clock_t end = clock();
+	sortTime = (double)(end - start) / CLOCKS_PER_SEC;
+	cout << "\nВремя сортировки: " << sortTime << "s." << endl;
+	cout << "Первые 5 элементов:";
+	for (int i = 0; i < 5; i++)
+	{
+		cout << " " << sorted[i];
+	}
+	cout << "\nКоличество ОЗУ: " << ARRAY_SIZE;
+}

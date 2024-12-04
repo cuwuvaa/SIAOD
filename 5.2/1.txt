@@ -1,0 +1,104 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+using namespace std;
+
+struct record {
+    char phonenumber[10];  // Увеличен размер для корректного номера телефона с "+1234567890"
+    char address[20];      // Размер для адреса
+};
+
+int func(string massive)
+{
+    for (int i = 0; i < massive.length(); i++)
+    {
+        if (massive[i] == 32)
+        {
+            return i;
+        }
+    }
+
+}
+// Функция для генерации уникального телефонного номера
+string generatePhone() {
+    string phone = "+";
+    phone += to_string(rand() % 9000000000 + 1000000000); // Генерация 10-значного номера
+    return phone;
+}
+
+// Проверка уникальности номера телефона
+bool isUnique(const string& example, const vector<string>& numbers) {
+    for (const auto& num : numbers) {
+        if (example == num)
+            return false;
+    }
+    return true;
+}
+
+// Функция для генерации бинарного файла с записями
+void generateFile(string file_name, int count) {
+    ifstream streets("adresses.txt");  // Открываем файл с адресами
+    if (!streets) {
+        cerr << "Ошибка при открытии файла с адресами.\n";
+        return;
+    }
+
+    // Считываем все адреса в вектор
+    vector<string> addresses;
+    string temp_address;
+    while (getline(streets, temp_address)) {
+        addresses.push_back(temp_address);
+    }
+    streets.close();
+    srand(static_cast<unsigned>(time(0)));  // Инициализация генератора случайных чисел
+
+    vector<string> used_numbers;  // Вектор для хранения сгенерированных номеров
+    string temp_number;
+
+    // Генерация уникальных номеров
+    for (int i = 0; i < count; i++) {
+        do {
+            temp_number = generatePhone();
+        } while (!isUnique(temp_number, used_numbers));
+        used_numbers.push_back(temp_number);
+    }
+
+    // Открываем основной двоичный файл для записи
+    ofstream mainfile(file_name, ios::out | ios::binary);
+    if (!mainfile) {
+        cerr << "Ошибка при открытии двоичного файла для записи.\n";
+        return;
+    }
+
+    record example_owner;
+
+    // Запись каждой уникальной записи (номер и адрес) в бинарный файл
+    for (int i = 0; i < count; i++) {
+        // Копируем номер телефона в структуру
+        strncpy_s(example_owner.phonenumber, used_numbers[i].c_str(), sizeof(example_owner.phonenumber) - 1);
+        example_owner.phonenumber[sizeof(example_owner.phonenumber) - 1] = '\0';  // Обязательно завершаем строку нулём
+
+        // Копируем адрес в структуру
+        
+        strncpy_s(example_owner.address, addresses[i].c_str(), sizeof(example_owner.address) - 1);
+        
+ 
+        example_owner.address[sizeof(example_owner.address) - 1] = '\n';
+        // Записываем структуру в бинарный файл
+        mainfile.write((char*)(&example_owner), sizeof(record));
+    }
+
+    mainfile.close();
+    cout << "Файл сгенерирован успешно." << endl;
+}
+
+int main() {
+    setlocale(LC_ALL, "");
+    string file = "newfile.bin";
+    int num_of_records = 20;  // Количество записей
+
+    generateFile(file, num_of_records);  // Генерация файла
+
+    return 0;
+}

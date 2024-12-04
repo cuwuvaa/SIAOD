@@ -1,0 +1,85 @@
+digraph {
+	node [shape=circle]
+	root [label="пусто"]
+	root0 [label="пусто"]
+	root -> root0 [label=0]
+	root00 [label="пусто"]
+	root0 -> root00 [label=0]
+	root001 [label="Пробел
+001"]
+	root00 -> root001 [label=1]
+	root1 [label="пусто"]
+	root -> root1 [label=1]
+	root11 [label="пусто"]
+	root1 -> root11 [label=1]
+	root110 [label="пусто"]
+	root11 -> root110 [label=0]
+	root1100 [label="пусто"]
+	root110 -> root1100 [label=0]
+	root11000 [label="В
+11000"]
+	root1100 -> root11000 [label=0]
+	root11001 [label="И
+11001"]
+	root1100 -> root11001 [label=1]
+	root000 [label="пусто"]
+	root00 -> root000 [label=0]
+	root0000 [label="Л
+0000"]
+	root000 -> root0000 [label=0]
+	root1101 [label="а
+1101"]
+	root110 -> root1101 [label=1]
+	root01 [label="пусто"]
+	root0 -> root01 [label=1]
+	root010 [label="в
+010"]
+	root01 -> root010 [label=0]
+	root10 [label="пусто"]
+	root1 -> root10 [label=0]
+	root101 [label="пусто"]
+	root10 -> root101 [label=1]
+	root1010 [label="е
+1010"]
+	root101 -> root1010 [label=0]
+	root100 [label="и
+100"]
+	root10 -> root100 [label=0]
+	root1011 [label="пусто"]
+	root101 -> root1011 [label=1]
+	root10111 [label="й
+10111"]
+	root1011 -> root10111 [label=1]
+	root0001 [label="к
+0001"]
+	root000 -> root0001 [label=1]
+	root10110 [label="л
+10110"]
+	root1011 -> root10110 [label=0]
+	root111 [label="пусто"]
+	root11 -> root111 [label=1]
+	root1111 [label="пусто"]
+	root111 -> root1111 [label=1]
+	root11110 [label="н
+11110"]
+	root1111 -> root11110 [label=0]
+	root11111 [label="о
+11111"]
+	root1111 -> root11111 [label=1]
+	root1110 [label="пусто"]
+	root111 -> root1110 [label=0]
+	root11100 [label="р
+11100"]
+	root1110 -> root11100 [label=0]
+	root011 [label="пусто"]
+	root01 -> root011 [label=1]
+	root0111 [label="с
+0111"]
+	root011 -> root0111 [label=1]
+	root0110 [label="ч
+0110"]
+	root011 -> root0110 [label=0]
+	root11101 [label="ь
+11101"]
+	root1110 -> root11101 [label=1]
+}

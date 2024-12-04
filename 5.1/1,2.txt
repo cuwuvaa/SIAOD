@@ -1,0 +1,145 @@
+#include <iostream>
+#include <vector>
+#include <bitset>
+
+using namespace std;
+unsigned const int n = sizeof(int) * 8;
+
+void ex1a()
+{
+    unsigned const int n = sizeof(int) * 8; // Определяем количество бит в целочисленном типе
+    unsigned char x = 255; // Инициализация переменной, представляющей число 11111111
+    unsigned char mask = 1; // Создание маски 00000001
+    cout << "исходное число: " << bitset<n>(x) << endl; // Вывод исходного числа в двоичном коде
+    x = x & (~(mask << 4)); // Применяем маску для сброса 5-го бита
+    cout << "конечное число: " << bitset<n>(x) << endl; // Вывод изменённого числа
+}
+
+void ex1b()
+{
+    unsigned const int n = sizeof(int) * 8; // Определяем количество бит в целочисленном типе
+    unsigned char mask = 1; // Создание маски 00000001
+    unsigned char x = 63; // Инициализация числа 00111111
+    cout << "исходное число: " << bitset<n>(x) << endl; // Вывод исходного числа
+    x = x | (mask << 6); // Применяем маску с сдвигом влево на 6 бит для установки 7-го бита
+    cout << "конечное число: " << bitset<n>(x) << endl; // Вывод изменённого числа
+}
+
+void ex1c()
+{
+    unsigned const int n = sizeof(int) * 8; // Определяем количество бит в целочисленном типе
+    unsigned int x = 25; // Инициализация числа
+    unsigned mask = (1 << (n - 1)); // Создание маски с 1 в старшем бите
+    cout << "Начальный вид маски: " << bitset<n>(mask) << endl; // Вывод маски
+    cout << bitset<n>(x); // Вывод числа в двоичном формате
+    cout << "Результат: ";
+    for (int i = 0; i < n; i++) // Перебор всех битов
+    {
+        // Вывод 1 или 0 в зависимости от значения бита
+        cout << ((x & mask) >> (n - i)); // Сдвигает результат вправо, чтобы получить значение бита в текущей позиции
+        mask = mask >> 1; // Сдвигаем маску вправо для проверки следующего бита
+    }
+    cout << endl; // Переход на новую строку
+}
+
+void ex2a(vector <int>& input) // Подключаем в функцию вектор со входными числами
+{
+    unsigned char mask = 1; // Создание маски
+    unsigned char x = 0; // Инициализация переменной для хранения битового массива
+
+    for (int i = 0; i < input.size(); i++)
+    {
+        x = x | (mask << input[i]); // Устанавливаем биты в зависимости от значений вектора
+        mask = 1; // Сбрасываем маску
+    }
+
+    cout << "битовый массив: " << bitset<8>(x) << endl; // Вывод битового массива
+    cout << "sorted: ";
+    for (int i = 0; i < 8; i++)
+    {
+        if (x & (1 << i)) // Проверка, установлен ли бит
+        {
+            cout << i << " "; // Вывод индекса установленного бита
+        }
+    }
+}
+
+void ex2b(vector <int>& input)
+{
+    unsigned long long int mask = 1; // Создание маски для 64 бит
+    unsigned long long int x = 0; // Инициализация переменной для битового массива
+    for (int i = 0; i < input.size(); i++)
+    {
+        x = x | (mask << input[i]); // Устанавливаем биты в зависимости от значений вектора
+        mask = 1; // Сбрасываем маску
+    }
+
+    cout << "битовый массив: " << bitset<64>(x) << endl; // Вывод битового массива
+    cout << "sorted: ";
+    for (int i = 0; i < 64; i++)
+    {
+        if (x & (1ULL << i)) // Проверка, установлен ли бит
+        {
+            cout << i << " "; // Вывод индекса установленного бита
+        }
+    }
+}
+
+void ex2c(vector <int>& input)
+{
+    unsigned char array[8] = { 0 }; // Создание массива для хранения байтов
+    for (int i = 0; i < input.size(); i++)
+    {
+        // Присваиваем каждому числу соответствующий байт
+        array[input[i] / 8] |= (1 << (input[i] % 8));
+    }
+    for (int i = 0; i < 8; i++)
+    {
+        cout << "byte " << i << ": " << bitset<8>(array[i]) << endl; // Вывод всех получившихся байтов
+    }
+
+    cout << "sorted: ";
+    for (int i = 0; i < 8; i++) // Перебор по байтам
+    {
+        for (int j = 0; j < 8; j++) // Перебор по битам
+        {
+            if (array[i] & (1 << j)) // Проверка, установлен ли бит в текущем байте
+            {
+                cout << (i * 8 + j) << " "; // Вывод числа в зависимости от номера байта
+            }
+        }
+    }
+}
+
+
+
+int main()
+{
+	setlocale(0, "");
+	int size_vec;
+	cout << "1. size (in < 8)\n2. size (in < 64)\n3. size (in < 64)\n-------------\ncommand: ";
+	int sw;
+	cin >> sw;
+	cout << "size? : ";
+	cin >> size_vec;
+	vector <int> ints(size_vec);
+	switch (sw)
+	{
+	case 1:
+		ex1b();
+	case 2:
+		for (int i = 0; i < size_vec; i++)
+		{
+			cin >> ints[i];
+		}
+		ex2b(ints);
+		break;
+	case 3:
+		for (int i = 0; i < size_vec; i++)
+		{
+			cin >> ints[i];
+		}
+		ex2c(ints);
+		break;
+	}
+}

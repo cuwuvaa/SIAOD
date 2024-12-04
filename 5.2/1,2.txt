@@ -1,0 +1,138 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <iomanip>  
+#include <chrono>
+using namespace std;
+
+struct record {
+    char phonenumber[13];  // телефонный номер 
+    char address[20];      // адрес
+};
+
+int getRandomDigit() {      //функция для получения случайной цифры
+    return rand() % 10;
+}
+
+string generatePhone()      //функция для генерации уникального телефонного номера
+{
+    string phoneNumber = "+";
+    // Генерируем оставшиеся 10 цифр номера
+    for (int i = 0; i < 11; i++) {
+        phoneNumber += to_string(getRandomDigit());
+    }
+
+    return phoneNumber;
+}
+
+
+bool isUnique(string example, vector<string>& numbers)      //функция для проверки уникальности номера
+{
+    for (string& num : numbers) {
+        if (example == num)
+            return false;
+    }
+    return true;
+}
+
+void generateFile(string file_name, int count)      //функция для генерации бинарного файла с записями
+{
+    ifstream streets("adresses.txt");  
+    if (!streets) {
+        cerr << "Ошибка при открытии файла с адресами.\n";
+        return;
+    }
+    vector<string> addresses;
+    string temp_address;
+    int count_adress = 0;
+    while (getline(streets, temp_address) && count_adress < count) 
+    {
+        addresses.push_back(temp_address);
+        count_adress++;
+    }
+    streets.close();
+
+    srand(static_cast<unsigned>(time(0)));  // инициализация генератора случайных чисел
+
+    vector<string> used_numbers;  // вектор для хранения сгенерированных номеров
+    string temp_number;
+
+    for (int i = 0; i < count; i++) {       //генерация уникальных номеров
+        do {
+            temp_number = generatePhone();
+        } while (!isUnique(temp_number, used_numbers));
+        used_numbers.push_back(temp_number);
+    }
+
+   
+    ofstream mainfile(file_name, ios::out | ios::binary);                // открываем основной двоичный файл для записи
+    if (!mainfile) {
+        cerr << "Ошибка при открытии двоичного файла для записи.\n";
+        return;
+    }
+
+    record example_owner;
+
+   
+    for (int i = 0; i < count; i++) {                    
+        
+        strncpy_s(example_owner.phonenumber, used_numbers[i].c_str(), sizeof(example_owner.phonenumber) - 1); // копируем номер телефона в структуру
+        strncpy_s(example_owner.address, addresses[i].c_str(), sizeof(example_owner.address) - 1);   // копируем адрес в структуру
+
+        mainfile.write((char*)(&example_owner), sizeof(record));        //запись каждой записи  в бинарный файл
+    }
+
+    mainfile.close();
+    cout << "Файл сгенерирован успешно." << endl;
+}
+
+void findRecord(string searchKey,string filename)
+{
+    ifstream file(filename, ios::binary);
+
+    if (!file) {
+        cout << "Ошибка при открытии файла!" << std::endl;
+        return;
+    }
+
+    record find;
+
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    while (file.read(reinterpret_cast<char*>(&find), sizeof(record))) {
+        
+        string currentKey(find.phonenumber, 13);    //преобразуем ключ в строку для сравнения
+
+        currentKey.erase(currentKey.find('\0'));    //удаляем возможные нулевые символы в конце строки телефона
+
+        if (currentKey == searchKey)
+        {
+            string address(find.address, 20);
+            address.erase(address.find('\0')); // убираем нулевые символы
+            cout << "Найдено: ключ = " << currentKey << ", адрес = " << address << std::endl;
+            break;
+        }
+    }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Время поиска: " << duration.count() << " секунд" << std::endl;
+    file.close();
+
+}
+int main() 
+{
+    setlocale(LC_ALL, "");
+    string file = "newfile.bin";
+    string find_key;
+    bool flag = true;
+    int num_of_records;
+    cout << "количество записей: ";
+    cin >> num_of_records;
+    generateFile(file, num_of_records);
+    cout << "ключ: ";
+    cin >> find_key;
+    findRecord(find_key, file);
+    return 0;
+}

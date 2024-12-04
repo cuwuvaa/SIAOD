@@ -1,0 +1,100 @@
+x#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <iomanip>  // Для форматирования 
+using namespace std;
+
+struct record {
+    string adress;      
+    string phonenumber;
+    void generatePhone() {
+        phonenumber = "+";
+        phonenumber += to_string(rand() % 9000000000 + 1000000000); // Генерация 10-значного номера
+    }
+};
+
+// Функция для генерации уникального телефонного номера
+
+
+// Проверка уникальности номера телефона
+bool isUnique(const string& example, const vector<string>& numbers) {
+    for (const auto& num : numbers) {
+        if (example == num)
+            return false;
+    }
+    return true;
+}
+
+// Функция для генерации бинарного файла с записями
+void generateFile(string file_name, int count) {
+    ifstream streets("adresses.txt");  // Открываем файл с адресами
+    if (!streets) {
+        cerr << "Ошибка при открытии файла с адресами.\n";
+        return;
+    }
+
+    // Считываем все адреса в вектор
+    vector<string> addresses;
+    string temp_address;
+    while (getline(streets, temp_address)) {
+        addresses.push_back(temp_address);
+    }
+    streets.close();
+    srand(static_cast<unsigned>(time(0)));  // Инициализация генератора случайных чисел
+
+    vector<record> all_records;  // Вектор для хранения структур
+    record example;
+    for (int i = 0; i < count; i++)
+    {
+        example.generatePhone();
+        example.adress = addresses[i];
+        all_records.push_back(example);
+    }
+    // Открываем основной двоичный файл для записи
+    ofstream mainfile(file_name, ios::out | ios::binary);
+    if (!mainfile) {
+        cerr << "Ошибка при открытии двоичного файла для записи.\n";    
+        return;
+    }
+    for (int i = 0; i < all_records.size(); i++)
+    {
+        example = all_records[i];
+        mainfile.write((char*)example.phonenumber.c_str(), example.phonenumber.length());
+        mainfile.write((char*)"\0", 1);
+        mainfile.write((char*)example.adress.c_str(), example.adress.length());
+        mainfile.write((char*)"\0", 1);
+    }
+
+    for (int i = 0; i < all_records.size(); i++)
+    {
+        example = all_records[i];
+        cout << example.phonenumber << "   " << example.adress << "\n";
+    }
+    mainfile.close();
+    cout << "Файл сгенерирован успешно." << endl;
+}
+
+void linear_search(string file_name)
+{
+    ifstream file;
+    file.open(file_name, ios::binary);
+    record example;
+    string iter;
+    while (!file.eof())
+    {
+        file.read((char*)&iter,);
+        cout << iter;
+    }
+    file.close();
+}
+
+int main() {
+    setlocale(LC_ALL, "");
+    string file = "newfile.bin";
+    int num_of_records = 20;  // Количество записей
+
+    linear_search(file);  // Генерация файла
+
+    return 0;
+}

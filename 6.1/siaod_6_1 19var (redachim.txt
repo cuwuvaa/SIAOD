@@ -1,0 +1,218 @@
+#include <format>
+#include <Windows.h>
+#include <iostream>
+using namespace std;
+
+typedef long long int KEY;
+
+struct item
+{
+	KEY isbn = NULL;
+	string name = "null";
+	string author = "null";
+};
+
+struct Hash_Table
+{
+	int length; 
+	int closed_adresses;
+	item* keys;	
+};
+
+int hash_func(KEY key_, Hash_Table hash_table)
+{
+	return key_ % hash_table.length;
+}
+
+Hash_Table resize_table(Hash_Table& table)
+{
+	Hash_Table new_table;
+	new_table.keys = new item[table.length * 2];
+	for (int i = 0; i < table.length; i++)
+	{
+		new_table.keys[i] = table.keys[i];
+	}
+	new_table.closed_adresses = table.closed_adresses;
+	new_table.length = table.length * 2;
+	delete[] table.keys;
+	return new_table;
+}
+
+void insertInHash(item example, Hash_Table& hash_table)
+{
+	int index = hash_func(example.isbn, hash_table);
+	int i = 0; //попытка для разрешения коллизии
+
+	while (!hash_table.keys[index].open_adress)
+	{
+		i++;
+		index = (hash_func(example.isbn, hash_table) + i * i) % hash_table.length;
+	}
+
+	if (index < hash_table.length)
+	{
+		hash_table.keys[index] = example;
+		hash_table.closed_adresses++;
+		hash_table.keys[index].open_adress = false;
+	}
+
+	
+	if (hash_table.closed_adresses != 0)		//если таблица заполнена на 75% или больше, увеличиваем её
+	{
+		if ((float)(hash_table.closed_adresses) / (float)(hash_table.length) >= 0.75)
+		{
+			hash_table = resize_table(hash_table);
+		}
+	}
+}
+
+
+void printTable(Hash_Table hash_table)
+{
+	for (int i = 0; i < hash_table.length; i++)
+	{
+		cout << "isbn: " << hash_table.keys[i].isbn << "   author: " << hash_table.keys[i].author << "    name:" << hash_table.keys[i].name << "\n";
+	}
+}
+
+int find_index(Hash_Table hash_table, KEY find_key)
+{
+	int i = hash_func(find_key,hash_table);
+	while (!hash_table.keys[i].deleted && !hash_table.keys[i].open_adress && (hash_table.keys[i].isbn != find_key))
+	{
+		i++;
+	}
+	if (hash_table.keys[i].deleted && hash_table.keys[i].open_adress) return -1;
+	else return i;
+
+}
+
+void find_data(Hash_Table& hash_table, KEY to_delete)
+{
+	int i = find_index(hash_table, to_delete);
+	if (i == -1)
+	{
+		cout << "not found\n";
+	}
+	if (hash_table.keys[i].isbn == to_delete)
+	{
+		cout << "isbn: " << hash_table.keys[i].isbn << "   author: " << hash_table.keys[i].author << "    name:" << hash_table.keys[i].name << "\n";
+	}
+	else if (hash_table.keys[i].isbn != to_delete)
+	{
+		while (hash_table.keys[i].isbn != to_delete && (i < hash_table.length)) 
+		{
+			i++;
+			if (hash_table.keys[i].isbn == to_delete)
+			{
+				cout << "isbn: " << hash_table.keys[i].isbn << "   author: " << hash_table.keys[i].author << "    name:" << hash_table.keys[i].name << "\n";
+			}
+		}
+	}
+	else cout << "not found\n";
+}
+
+void delete_data(Hash_Table hash_table, KEY to_delete)
+{
+	int i = find_index(hash_table, to_delete);
+	if (i == -1)
+	{
+		cout << "deleting failed\n";
+	}
+	if (hash_table.keys[i].isbn == to_delete)
+	{
+		hash_table.keys[i].deleted = true;
+		hash_table.keys[i].open_adress = true;
+		hash_table.closed_adresses--;
+		hash_table.keys[i].author = "null";
+		hash_table.keys[i].isbn = NULL;
+		hash_table.keys[i].name = "null";
+		cout << "deleted\n";
+	}
+	else if (hash_table.keys[i].isbn != to_delete)
+	{
+		while (hash_table.keys[i].isbn != to_delete && (i < hash_table.length))
+		{
+			i++;
+			if (hash_table.keys[i].isbn == to_delete)
+			{
+				hash_table.keys[i].deleted = true;
+				hash_table.keys[i].open_adress = true;
+				hash_table.closed_adresses--;
+				hash_table.keys[i].author = "null";
+				hash_table.keys[i].isbn = NULL;
+				hash_table.keys[i].name = "null";
+				cout << "deleted\n";
+				break;
+			}
+		}
+	}
+	else cout << "failed deleting\n";
+}
+
+
+int main()
+{
+	setlocale(0, "");
+	SetConsoleCP(1251);
+	Hash_Table table;		//данные для добавления и тд
+	item ex;
+	item ex1, ex2, ex3, ex4, ex5,ex6;
+	KEY key_to_find;
+	KEY key_to_delete;
+	ex6.author = "И.В.Лисовский"; ex6.isbn = 14880000;   ex6.name = "Гений";
+	ex1.author = "А.С.Пушкин";	ex1.isbn = 499558691032;	ex1.name = "Капитанская дочка";
+	ex2.author = "М.Ю.Лермонтов"; ex2.isbn = 103583986392;	ex2.name = "Герой нашего времени";
+	ex3.author = "Л.Н.Толстой"; ex3.isbn = 960303553069;	ex3.name = "Война и Мир";
+	ex4.author = "С.Я.Маршак"; ex4.isbn = 869327484683;		ex4.name = "Кошкин дом";
+	ex5.author = "А.А.Ахматова"; ex5.isbn = 683929395816;   ex5.name = "Реквием";
+	
+
+	table.length = 10; 
+	table.closed_adresses = 0;
+	table.keys = new item[table.length];	//выделяем память под массив элементов
+
+	while (true)
+	{
+		cout << "0. auto\n1. add\n2. find\n3. print\n4. delete\n ";
+		int n;
+		cin >> n;
+		switch (n)
+		{
+		case 0:
+			insertInHash(ex1, table);
+			insertInHash(ex2, table);
+			insertInHash(ex3, table);
+			insertInHash(ex4, table);
+			insertInHash(ex5, table);
+			insertInHash(ex6, table);
+			cout << "ready\n";
+			break;
+		case 1:
+			cout << "isbn: ";
+			cin >> ex.isbn;
+			cout << "author: ";
+			cin >> ex.author;
+			cout << "name: ";
+			cin >> ex.name;
+			insertInHash(ex, table);
+			break;
+		case 2:
+			cout << "index: ";
+			cin >> key_to_find;
+			find_data(table, key_to_find);
+			break;
+		case 3:
+			printTable(table);
+			break;
+		case 4:
+			cout << "isbn: ";
+			cin >> key_to_delete;
+			delete_data(table, key_to_delete);
+			break;
+		}
+	}
+	delete[] table.keys;
+
+	return 0;
+}
