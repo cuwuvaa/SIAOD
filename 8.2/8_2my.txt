@@ -1,0 +1,248 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
+
+using namespace std;
+
+//функция для выполнения жадной раскраски графа
+void greedyColoring(int numTurns, const vector<vector<int>>& adjList, vector<int>& colors)
+{
+    colors.assign(numTurns, -1); //инициализировать все цвета как не назначенные (-1)
+
+    for (int u = 0; u < numTurns; ++u)
+    {
+        //множество для хранения уже использованных цветов соседей
+        unordered_set<int> assignedColors;
+
+        //проверить цвета смежных вершин
+        for (int v : adjList[u])
+        {
+            if (colors[v] != -1)
+            {
+                assignedColors.insert(colors[v]);
+            }
+        }
+
+        //найти минимальный доступный цвет
+        int color = 0;
+        while (assignedColors.find(color) != assignedColors.end())
+        {
+            ++color;
+        }
+
+        colors[u] = color; //назначаем цвет вершине
+    }
+}
+
+int main()
+{
+    setlocale(0, "");
+    int choice;
+    cout << "Меню:\n";
+    cout << "1. Ручной ввод\n";
+    cout << "2. Автоматический ввод (условие изначальной задачи)\n";
+    cout << "ваш выбор: ";
+    cin >> choice;
+
+    int numRoads;
+    vector<string> roads;
+    int numTurns;
+    vector<string> turns;
+    unordered_map<string, int> turnIndices; //отображение названия поворота на его индекс
+    vector<vector<int>> adjList;
+
+    if (choice == 1)
+    {
+        //ручной ввод данных
+        cout << "количество дорог: ";
+        cin >> numRoads;
+
+        roads.resize(numRoads);
+        cout << "названия дорог: ";
+        for (int i = 0; i < numRoads; ++i)
+        {
+            cin >> roads[i];
+        }
+
+        cout << "количество поворотов: ";
+        cin >> numTurns;
+
+        turns.resize(numTurns);
+        cout << "введите повороты (пример: AB AC AD BA ...): ";
+        for (int i = 0; i < numTurns; ++i)
+        {
+            cin >> turns[i];
+            turnIndices[turns[i]] = i;
+        }
+
+        //инициализируем список смежности для графа конфликтов
+        adjList.resize(numTurns);
+
+        //ввод конфликтов для каждого поворота
+        cout << "введите конфликты для каждого поворота.\n";
+
+        for (int i = 0; i < numTurns; ++i)
+        {
+            string turn = turns[i];
+            int numConflicts;
+            cout << "количество конфликтов на повороте " << turn << ": ";
+            cin >> numConflicts;
+            cout << "введите конфликтующие повороты для поворота " << turn << ": ";
+            for (int j = 0; j < numConflicts; ++j)
+            {
+                string conflictTurn;
+                cin >> conflictTurn;
+                //добавляем ребро между поворотом и конфликтующим поворотом
+                if (turnIndices.find(conflictTurn) != turnIndices.end())
+                {
+                    int v = turnIndices[conflictTurn];
+                    //избегаем дублирования ребер
+                    if (find(adjList[i].begin(), adjList[i].end(), v) == adjList[i].end())
+                    {
+                        adjList[i].push_back(v);
+                        adjList[v].push_back(i); //т.к граф неориентированный
+                    }
+                }
+                else
+                {
+                    cerr << "поворот " << conflictTurn << " не найден\n";
+                }
+            }
+        }
+    }
+    else
+    {
+        //используем готовые данные исходной задачи
+        numRoads = 5;
+        roads = { "A", "B", "C", "D", "E" };
+
+        turns = { "AB", "AC", "AD", "BA", "BC", "BD", "DA", "DB", "DC", "EA", "EB", "EC", "ED" };
+        numTurns = turns.size();
+
+        for (int i = 0; i < numTurns; ++i)
+        {
+            turnIndices[turns[i]] = i;
+        }
+
+        //инициализируем список смежности для графа конфликтов
+        adjList.resize(numTurns);
+
+        //данные о конфликтах
+        unordered_map<string, vector<string>> conflictData = {
+            {"AB", {"BC", "BD", "DA", "EA"}},
+            {"AC", {"BD", "DA", "DB", "EA", "EB"}},
+            {"AD", {"EA", "EB", "EC"}},
+            {"BA", {}},
+            {"BC", {"AB", "DB", "EB"}},
+            {"BD", {"AB", "AC", "DA", "EB", "EC"}},
+            {"DA", {"AB", "AC", "BD", "EB", "EC"}},
+            {"DB", {"AC", "BC", "EC"}},
+            {"DC", {}},
+            {"EA", {"AB", "AC", "AD"}},
+            {"EB", {"AC", "AD", "BC", "BD", "DA"}},
+            {"EC", {"AD", "BD", "DA", "DB"}},
+            {"ED", {}},
+        };
+
+        //заполняем adjList на основе conflictData
+        for (const auto& entry : conflictData)
+        {
+            int u = turnIndices[entry.first];
+            for (const string& conflictTurn : entry.second)
+            {
+                int v = turnIndices[conflictTurn];
+                //избегаем дублирования ребер
+                if (find(adjList[u].begin(), adjList[u].end(), v) == adjList[u].end())
+                {
+                    adjList[u].push_back(v);
+                    adjList[v].push_back(u);
+                }
+            }
+        }
+        cout << "\n\n--------------------------------------------------------------\n";
+        cout << "\nкол-во дорог: " << numRoads << "\n\n";
+        cout << "дороги: ";
+        for (const string& road : roads)
+        {
+            cout << road << " ";
+        }
+        cout << "\n\nкол-во поворотов: " << numTurns << "\n";
+        cout << "\nповороты: ";
+        for (const string& turn : turns)
+        {
+            cout << turn << " ";
+        }
+        cout << "\n\n--------------------------------------------------------------\n";
+        cout << "конфликты:\n\n";
+        for (const auto& entry : conflictData)
+        {
+            cout << entry.first << ": ";
+            for (const string& conflict : entry.second)
+            {
+                cout << conflict << " ";
+            }
+            cout << "\n";
+        }
+    }
+
+    //построение матрицы смежности
+    vector<vector<int>> adjMatrix(numTurns, vector<int>(numTurns, 0));
+    for (int u = 0; u < numTurns; ++u)
+    {
+        for (int v : adjList[u])
+        {
+            adjMatrix[u][v] = 1;
+        }
+    }
+
+    cout << "--------------------------------------------------------------\n";
+    cout << "\nматрица смежности (1 означают конфликт дорог на перекрестке)\n\n";
+
+    //вывод заголовка
+    cout << setw(5) << "";
+    for (int i = 0; i < numTurns; ++i)
+    {
+        cout << setw(5) << turns[i];
+    }
+    cout << "\n";
+
+    for (int i = 0; i < numTurns; ++i)
+    {
+        cout << setw(5) << turns[i];
+        for (int j = 0; j < numTurns; ++j)
+        {
+            cout << setw(5) << adjMatrix[i][j];
+        }
+        cout << "\n";
+    }
+    cout << "\n--------------------------------------------------------------";
+    //выполнение жадной раскраски (жадный алгоритм)
+    vector<int> colors;
+    greedyColoring(numTurns, adjList, colors);
+
+    //группировка поворотов по цветам (фазам светофоров)
+    unordered_map<int, vector<string>> phases;
+    for (int i = 0; i < numTurns; ++i)
+    {
+        phases[colors[i]].push_back(turns[i]);
+    }
+
+    // Вывод фаз
+    cout << "\nфазы перекрестка, самое оптимальное решение конфликтов дорог на перекрестке - включать светофор по фазам по порядку:\n";
+    for (const auto& phase : phases)
+    {
+        cout << "фаза " << phase.first + 1 << ": ";
+        for (const string& turn : phase.second)
+        {
+            cout << turn << " ";
+        }
+        cout << "\n";
+    }
+    cout << "--------------------------------------------------------------\n";
+
+    return 0;
+}

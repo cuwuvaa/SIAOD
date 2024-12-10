@@ -1,0 +1,423 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
+
+using namespace std;
+
+// Глобальные переменные для подсчета итераций
+long long greedyIterations = 0;
+long long bruteForceIterations = 0;
+
+// Глобальная переменная для управления выводом логов
+bool showLogs = false;
+bool showLogs2 = false;
+
+// Функция для выполнения жадной раскраски графа
+void greedyColoring(int numTurns, const vector<vector<int>>& adjList, vector<int>& colors)
+{
+    colors.assign(numTurns, -1); // Инициализировать все цвета как не назначенные (-1)
+
+    for (int u = 0; u < numTurns; ++u)
+    {
+        // Множество для хранения уже использованных цветов соседей
+        unordered_set<int> assignedColors;
+
+        // Проверить цвета смежных вершин
+        if (showLogs)
+        {
+            cout << "\nОбрабатываем вершину " << u << "\n";
+            cout << "Смежные вершины: ";
+            for (int v : adjList[u])
+            {
+                cout << v << " ";
+            }
+            cout << "\n";
+        }
+
+        for (int v : adjList[u])
+        {
+            if (colors[v] != -1)
+            {
+                assignedColors.insert(colors[v]);
+            }
+            greedyIterations++; // Увеличиваем счетчик итераций для жадного алгоритма
+        }
+
+        if (showLogs)
+        {
+            cout << "Использованные цвета соседей: ";
+            for (int c : assignedColors)
+            {
+                cout << c << " ";
+            }
+            cout << "\n";
+        }
+
+        // Найти минимальный доступный цвет
+        int color = 0;
+        while (assignedColors.find(color) != assignedColors.end())
+        {
+            ++color;
+            greedyIterations++; // Счетчик итераций
+        }
+
+        colors[u] = color; // Назначаем цвет вершине
+
+        if (showLogs)
+        {
+            cout << "Назначенный цвет вершине " << u << ": " << color << "\n";
+        }
+    }
+}
+
+// Функция для проверки возможности раскраски графа с заданным числом цветов
+bool graphColoringUtil(int vertex, int numTurns, int numColors, const vector<vector<int>>& adjList, vector<int>& colors)
+{
+    bruteForceIterations++; //увеличиваем счетчик итераций для метода грубой силы
+
+    if (vertex == numTurns)
+        return true;
+
+    if (showLogs)
+    {
+        cout << "\nПытаемся раскрасить вершину " << vertex << "\n";
+    }
+
+    //пробуем все цвета от 0 до numColors - 1
+    for (int color = 0; color < numColors; ++color)
+    {
+        bool canColor = true;
+
+        //проверяем, конфликтует ли цвет с соседями
+        for (int neighbor : adjList[vertex])
+        {
+            if (colors[neighbor] == color)
+            {
+                canColor = false;
+                break;
+            }
+            bruteForceIterations++; //счетчик итераций
+        }
+
+        if (showLogs2)
+        {
+            cout << "Пробуем цвет " << color << " для вершины " << vertex << ": ";
+            cout << (canColor ? "подходит" : "не подходит") << "\n";
+        }
+
+        if (canColor)
+        {
+            colors[vertex] = color;
+            if (graphColoringUtil(vertex + 1, numTurns, numColors, adjList, colors))
+                return true;
+            colors[vertex] = -1; //назначение не привело к решению, откатываемся
+
+            if (showLogs2)
+            {
+                cout << "Откатываемся с вершины " << vertex << ", цвет " << color << "\n";
+            }
+        }
+    }
+
+    return false;
+}
+
+// Функция для поиска минимального числа цветов методом грубой силы
+int bruteForceColoring(int numTurns, const vector<vector<int>>& adjList, vector<int>& colors)
+{
+    colors.assign(numTurns, -1); //инициализируем все цвета как не назначенные (-1)
+
+    //начинаем с 1 цвета и увеличиваем число цветов, пока не найдем корректную раскраску
+    for (int numColors = 1; numColors <= numTurns; ++numColors)
+    {
+        bruteForceIterations = 0; //сбрасываем счетчик итераций для каждого числа цветов
+
+        if (showLogs2)
+        {
+            cout << "\nПытаемся раскрасить граф с " << numColors << " цветами\n";
+        }
+
+        if (graphColoringUtil(0, numTurns, numColors, adjList, colors))
+        {
+            return numColors; //найдено минимальное число цветов
+        }
+    }
+    return numTurns; //в худшем случае потребуется столько же цветов, сколько вершин
+}
+
+int main()
+{
+    setlocale(0, "");
+    int choice;
+    cout << "Меню:\n";
+    cout << "1. Ручной ввод\n";
+    cout << "2. Автоматический ввод (условие изначальной задачи)\n";
+    cout << "Ваш выбор: ";
+    cin >> choice;
+    int numRoads;
+    vector<string> roads;
+    int numTurns;
+    vector<string> turns;
+    unordered_map<string, int> turnIndices; // Отображение названия поворота на его индекс
+    vector<vector<int>> adjList;
+
+    if (choice == 1)
+    {
+        // Ручной ввод данных
+        cout << "Количество дорог: ";
+        cin >> numRoads;
+
+        roads.resize(numRoads);
+        cout << "Названия дорог: ";
+        for (int i = 0; i < numRoads; ++i)
+        {
+            cin >> roads[i];
+        }
+
+        cout << "Количество поворотов: ";
+        cin >> numTurns;
+
+        turns.resize(numTurns);
+        cout << "Введите повороты (пример: AB AC AD BA ...): ";
+        for (int i = 0; i < numTurns; ++i)
+        {
+            cin >> turns[i];
+            turnIndices[turns[i]] = i;
+        }
+
+        // Инициализируем список смежности для графа конфликтов
+        adjList.resize(numTurns);
+
+        // Ввод конфликтов для каждого поворота
+        cout << "Введите конфликты для каждого поворота.\n";
+
+        for (int i = 0; i < numTurns; ++i)
+        {
+            string turn = turns[i];
+            int numConflicts;
+            cout << "Количество конфликтов на повороте " << turn << ": ";
+            cin >> numConflicts;
+            cout << "Введите конфликтующие повороты для поворота " << turn << ": ";
+            for (int j = 0; j < numConflicts; ++j)
+            {
+                string conflictTurn;
+                cin >> conflictTurn;
+                // Добавляем ребро между поворотом и конфликтующим поворотом
+                if (turnIndices.find(conflictTurn) != turnIndices.end())
+                {
+                    int v = turnIndices[conflictTurn];
+                    // Избегаем дублирования ребер
+                    if (find(adjList[i].begin(), adjList[i].end(), v) == adjList[i].end())
+                    {
+                        adjList[i].push_back(v);
+                        adjList[v].push_back(i); // Т.к граф неориентированный
+                    }
+                }
+                else
+                {
+                    cerr << "Поворот " << conflictTurn << " не найден\n";
+                }
+            }
+        }
+    }
+    else
+    {
+        // Используем готовые данные исходной задачи
+        numRoads = 5;
+        roads = { "A", "B", "C", "D", "E" };
+
+        turns = { "AB", "AC", "AD", "BA", "BC", "BD", "DA", "DB", "DC", "EA", "EB", "EC", "ED" };
+        numTurns = turns.size();
+
+        for (int i = 0; i < numTurns; ++i)
+        {
+            turnIndices[turns[i]] = i;
+        }
+
+        // Инициализируем список смежности для графа конфликтов
+        adjList.resize(numTurns);
+
+        // Данные о конфликтах
+        unordered_map<string, vector<string>> conflictData = {
+            {"AB", {"BC", "BD", "DA", "EA"}},
+            {"AC", {"BD", "DA", "DB", "EA", "EB"}},
+            {"AD", {"EA", "EB", "EC"}},
+            {"BA", {}},
+            {"BC", {"AB", "DB", "EB"}},
+            {"BD", {"AB", "AC", "DA", "EB", "EC"}},
+            {"DA", {"AB", "AC", "BD", "EB", "EC"}},
+            {"DB", {"AC", "BC", "EC"}},
+            {"DC", {}},
+            {"EA", {"AB", "AC", "AD"}},
+            {"EB", {"AC", "AD", "BC", "BD", "DA"}},
+            {"EC", {"AD", "BD", "DA", "DB"}},
+            {"ED", {}},
+        };
+
+        // Заполняем adjList на основе conflictData
+        for (const auto& entry : conflictData)
+        {
+            int u = turnIndices[entry.first];
+            for (const string& conflictTurn : entry.second)
+            {
+                int v = turnIndices[conflictTurn];
+                // Избегаем дублирования ребер
+                if (find(adjList[u].begin(), adjList[u].end(), v) == adjList[u].end())
+                {
+                    adjList[u].push_back(v);
+                    adjList[v].push_back(u);
+                }
+            }
+        }
+        cout << "\n\n--------------------------------------------------------------\n";
+        cout << "\nКоличество дорог: " << numRoads << "\n\n";
+        cout << "Дороги: ";
+        for (const string& road : roads)
+        {
+            cout << road << " ";
+        }
+        cout << "\n\nКоличество поворотов: " << numTurns << "\n";
+        cout << "\nПовороты: ";
+        for (const string& turn : turns)
+        {
+            cout << turn << " ";
+        }
+        cout << "\n\n--------------------------------------------------------------\n";
+        cout << "Конфликты:\n\n";
+        for (const auto& entry : conflictData)
+        {
+            cout << entry.first << ": ";
+            for (const string& conflict : entry.second)
+            {
+                cout << conflict << " ";
+            }
+            cout << "\n";
+        }
+    }
+
+    // Построение матрицы смежности
+    vector<vector<int>> adjMatrix(numTurns, vector<int>(numTurns, 0));
+    for (int u = 0; u < numTurns; ++u)
+    {
+        for (int v : adjList[u])
+        {
+            adjMatrix[u][v] = 1;
+        }
+    }
+
+    cout << "--------------------------------------------------------------\n";
+    cout << "\nМатрица смежности (1 означает конфликт дорог на перекрестке)\n\n";
+
+    // Вывод заголовка
+    cout << setw(5) << "";
+    for (int i = 0; i < numTurns; ++i)
+    {
+        cout << setw(5) << turns[i];
+    }
+    cout << "\n";
+
+    for (int i = 0; i < numTurns; ++i)
+    {
+        cout << setw(5) << turns[i];
+        for (int j = 0; j < numTurns; ++j)
+        {
+            cout << setw(5) << adjMatrix[i][j];
+        }
+        cout << "\n";
+    }
+    cout << "\n--------------------------------------------------------------\n";
+    char logChoice;
+    cout << "Вывести подробные логи жадного алгоритма? (y/n): ";
+    cin >> logChoice;
+    showLogs = (logChoice == 'y' || logChoice == 'Y');
+    // Выполнение жадной раскраски (жадный алгоритм)
+    vector<int> greedyColors;
+    greedyIterations = 0; // Сбрасываем счетчик итераций для жадного алгоритма
+    greedyColoring(numTurns, adjList, greedyColors);
+
+    // Группировка поворотов по цветам (фазам светофоров) для жадного алгоритма
+    unordered_map<int, vector<string>> greedyPhases;
+    for (int i = 0; i < numTurns; ++i)
+    {
+        greedyPhases[greedyColors[i]].push_back(turns[i]);
+    }
+
+    // Вывод фаз для жадного алгоритма
+    cout << "\n\nФазы перекрестка (жадный алгоритм):\n";
+    for (const auto& phase : greedyPhases)
+    {
+        cout << "Фаза " << phase.first + 1 << ": ";
+        for (const string& turn : phase.second)
+        {
+            cout << turn << " ";
+        }
+        cout << "\n";
+    }
+    cout << "Число цветов (фаз) при жадном алгоритме: " << greedyPhases.size() << "\n";
+    cout << "Число итераций при жадном алгоритме: " << greedyIterations << "\n";
+    cout << "--------------------------------------------------------------\n";
+    char logChoice2;
+    cout << "Вывести подробные логи алгоритма грубой силы? (y/n): ";
+    cin >> logChoice2;
+    showLogs2 = (logChoice2 == 'y' || logChoice2 == 'Y');
+    // Выполнение раскраски методом грубой силы
+    vector<int> bruteForceColors;
+    int minColors = bruteForceColoring(numTurns, adjList, bruteForceColors);
+
+    // Группировка поворотов по цветам (фазам светофоров) для метода грубой силы
+    unordered_map<int, vector<string>> bruteForcePhases;
+    for (int i = 0; i < numTurns; ++i)
+    {
+        bruteForcePhases[bruteForceColors[i]].push_back(turns[i]);
+    }
+
+    // Вывод фаз для метода грубой силы
+    cout << "\nФазы перекрестка (метод грубой силы):\n";
+    for (const auto& phase : bruteForcePhases)
+    {
+        cout << "Фаза " << phase.first + 1 << ": ";
+        for (const string& turn : phase.second)
+        {
+            cout << turn << " ";
+        }
+        cout << "\n";
+    }
+    cout << "Минимальное число цветов (фаз) при методе грубой силы: " << minColors << "\n";
+    cout << "Число итераций при методе грубой силы: " << bruteForceIterations << "\n";
+    cout << "--------------------------------------------------------------\n";
+
+    cout << "\n\n----------ИТОГ-------------\n\n";
+    cout << "\n\nФазы перекрестка (жадный алгоритм):\n";
+    for (const auto& phase : greedyPhases)
+    {
+        cout << "Фаза " << phase.first + 1 << ": ";
+        for (const string& turn : phase.second)
+        {
+            cout << turn << " ";
+        }
+        cout << "\n";
+    }
+    cout << "Число цветов (фаз) при жадном алгоритме: " << greedyPhases.size() << "\n";
+    cout << "Число итераций при жадном алгоритме: " << greedyIterations << "\n";
+    cout << "--------------------------------------------------------------\n";
+
+    // Вывод фаз для метода грубой силы
+    cout << "\n\n\nФазы перекрестка (метод грубой силы):\n";
+    for (const auto& phase : bruteForcePhases)
+    {
+        cout << "Фаза " << phase.first + 1 << ": ";
+        for (const string& turn : phase.second)
+        {
+            cout << turn << " ";
+        }
+        cout << "\n";
+    }
+    cout << "Минимальное число цветов (фаз) при методе грубой силы: " << minColors << "\n";
+    cout << "Число итераций при методе грубой силы: " << bruteForceIterations << "\n";
+    cout << "--------------------------------------------------------------\n";
+    return 0;
+}
