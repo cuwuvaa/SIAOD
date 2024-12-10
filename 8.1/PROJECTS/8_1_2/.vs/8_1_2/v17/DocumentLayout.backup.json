@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\ivank\\source\\repos\\8_1_2\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{52194F8B-0AA3-4C5C-9A3B-0C8192549191}|8_1_2\\8_1_2.vcxproj|C:\\Users\\ivank\\source\\repos\\8_1_2\\8_1_2\\8_1_2.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{52194F8B-0AA3-4C5C-9A3B-0C8192549191}|8_1_2\\8_1_2.vcxproj|solutionrelative:8_1_2\\8_1_2.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 390,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "8_1_2.cpp",
+              "DocumentMoniker": "C:\\Users\\ivank\\source\\repos\\8_1_2\\8_1_2\\8_1_2.cpp",
+              "RelativeDocumentMoniker": "8_1_2\\8_1_2.cpp",
+              "ToolTip": "C:\\Users\\ivank\\source\\repos\\8_1_2\\8_1_2\\8_1_2.cpp",
+              "RelativeToolTip": "8_1_2\\8_1_2.cpp",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABoAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-12-01T23:42:56.628Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+﻿  8_1_2auto.cpp
+C:\Users\ivank\source\repos\8_1_2auto\8_1_2auto\8_1_2auto.cpp(125,21): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\ivank\source\repos\8_1_2auto\8_1_2auto\8_1_2auto.cpp(160,24): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\ivank\source\repos\8_1_2auto\8_1_2auto\8_1_2auto.cpp(163,23): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\ivank\source\repos\8_1_2auto\8_1_2auto\8_1_2auto.cpp(164,27): warning C4244: инициализация: преобразование "double" в "int", возможна потеря данных
+C:\Users\ivank\source\repos\8_1_2auto\8_1_2auto\8_1_2auto.cpp(188,23): warning C4244: инициализация: преобразование "unsigned __int64" в "double", возможна потеря данных
+  8_1_2auto.vcxproj -> C:\Users\ivank\source\repos\8_1_2auto\x64\Debug\8_1_2auto.exe

@@ -1,0 +1,5 @@
+﻿  8_1.cpp
+C:\Users\ivank\source\repos\8_1\8_1\8_1.cpp(56,8): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\ivank\source\repos\8_1\8_1\8_1.cpp(144,33): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\ivank\source\repos\8_1\8_1\8_1.cpp(149,43): warning C4267: +=: преобразование из "size_t" в "int"; возможна потеря данных
+  8_1.vcxproj -> C:\Users\ivank\source\repos\8_1\x64\Debug\8_1.exe
